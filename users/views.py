@@ -3,6 +3,8 @@ from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.models import User
 from .forms import *
 from django.http import HttpResponseRedirect
+from .models import userExtraField
+
 
 # Create your views here.
 
@@ -39,10 +41,13 @@ def signup(request):
             email = form.cleaned_data['email']
             password = form.cleaned_data['password']
             conf_password = form.cleaned_data['conf_password']
+            dob = request.POST['dob']
             if password == conf_password:
                 try:
                     user = User.objects.create_user(username=user_name, first_name=f_name, last_name = l_name, email=email, password=password)
                     user.save()
+                    user_data = userExtraField(user = user, dob=dob)
+                    user_data.save()
                     login(request, user)
                     return HttpResponseRedirect(reverse('index'))
                 except :

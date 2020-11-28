@@ -3,6 +3,14 @@ from django.contrib.auth.models import User
 
 def get_upload_path(instance, filename):
     return '{0}/{1}/{2}.png'.format(instance.image_for.created_by, instance.image_for.id, filename)
+
+
+
+
+class Category(models.Model):
+    Category_name = models.CharField(max_length=255)
+
+
 # Create your models here.
 class News(models.Model):
     title = models.CharField(max_length=255, default='')
@@ -11,6 +19,7 @@ class News(models.Model):
     created_at = models.DateTimeField(auto_now=True)
     likes = models.IntegerField(default=0)
     dislike = models.IntegerField(default=0)
+    category = models.ForeignKey(Category,null=True, blank=True, on_delete=models.SET_NULL)
 
 
 class images(models.Model):

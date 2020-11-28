@@ -13,12 +13,73 @@
     href="https://unpkg.com/bootstrap-material-design@4.1.1/dist/css/bootstrap-material-design.min.css"
     integrity="sha384-wXznGJNEXNG1NFsbm0ugrLFMQPWswR3lds2VeinahP8N0zJw9VWSopbjv2x7WCvX" crossorigin="anonymous">
   <script src="https://unpkg.com/material-components-web@latest/dist/material-components-web.min.js"></script>
-  <title>News</title>
+  <title>{% block title %} News {% endblock %}</title>
+  {% block style %}{% endblock %}
 </head>
 
 <body>
-  <h1>Dashboard</h1>
-  <a href="/logout" class="btn btn-active btn-danger">logout</a href="/logout">
+  
+    <nav class="navbar navbar-expand-lg navbar-light bg-light">
+      <a class="navbar-brand mx-auto" href="#">
+          <!-- <img src="" width="50" height="50" style="object-fit: cover;" alt=""> -->
+
+      </a>
+      <button class="navbar-toggler float-left" type="button" data-toggle="collapse" data-target="#navbarNav"
+          aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation" style="border:none;">
+          <span class="navbar-toggler-icon"></span>
+      </button>
+      <div class="row col-12">
+          <div class="collapse navbar-collapse col-md-6  ml-auto" id="navbarNav">
+              <ul class="navbar-nav text-center col-md-6 ml-auto">
+
+                  <li class="nav-item active">
+                      <a class="nav-link" href="#">Add news<span class="sr-only">(current)</span></a>
+                  </li>
+                  <li class="nav-item dropdown col-md">
+                      <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown2" role="button"
+                          data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                          {{request.user}}
+                      </a>
+                      <div class="dropdown-menu text-center col-md-12 col-6 mx-auto"
+                          aria-labelledby="navbarDropdown2">
+                          <a class="dropdown-item " href="#">Update profile</a>
+                          <!-- <a class="dropdown-item " href="#"></a> -->
+                          <!-- <a class="dropdown-item " href="#">Maxpain</a> -->
+                          <a href="/logout" class="link text-danger">logout</a href="/logout">
+                      </div>
+                  </li>
+                  <li class="nav-item active">
+                      <a class="nav-link" href="#contact">Contact us</a>
+                  </li>
+
+              </ul>
+          </div>
+
+      </div>
+  </nav>
+<div class="col-12 mx-auto row">
+  <div class="col-md-2 bg-success">
+
+  </div>
+  <div class="col-md-10 bg-primary">
+    {% block body %} {% endblock %}
+
+  </div>
+</div>
+
+
+
+
+
+
+
+
+
+  {% block script %} {% endblock %}
+
+
+
+
 
   <!-- Optional JavaScript -->
   <!-- jQuery first, then Popper.js, then Bootstrap JS -->
@@ -31,6 +92,7 @@
   <script src="https://unpkg.com/bootstrap-material-design@4.1.1/dist/js/bootstrap-material-design.js"
     integrity="sha384-CauSuKpEqAFajSpkdjv3z9t8E7RlpJ1UP0lKM/+NdtSarroVKu069AlsRPKkFBz9"
     crossorigin="anonymous"></script>
+
 </body>
 
 </html>

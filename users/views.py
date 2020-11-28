@@ -1,10 +1,11 @@
-from django.shortcuts import render, redirect, reverse
+from django.shortcuts import render, redirect, reverse, HttpResponse
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.models import User
 from .forms import *
 from django.http import HttpResponseRedirect
 from .models import userExtraField
-
+import json
+from django.views.decorators.csrf import csrf_exempt
 
 # Create your views here.
 
@@ -64,3 +65,42 @@ def user_logout(request):
     logout(request)
     return HttpResponseRedirect(reverse('getLogin'))
 
+
+def myData(request):
+
+    if request.user.is_authenticated:
+        user_data = userExtraField.objects.get(user = request.user)
+        
+        data = {
+            'profile_pic': '',
+            'dob': user_data.dob.isoformat(),
+            'first_name': request.user.first_name,
+            'last_name': request.user.last_name,
+            'email': request.user.email
+        }
+        if user_data.profile_pic:
+            data['profile_pic'] = user_data.profile_pic.url
+        print(data)
+        return HttpResponse(json.dumps(data))
+    else: 
+        return redirect('getLogin')
+
+@csrf_exempt
+def update_profile(request):
+    profile_pic = request.FILES.get('profile_pic')
+    dob = request.POST.get('dob')
+    first_name = request.POST.get('first_name')
+    last_name = request.POST.get('last_name')
+    email = request.POST.get('email')
+    user = request.user
+    user.email = email
+    user.first_name = first_name
+    user.last_name = last_name
+    user.save()
+    extra = userExtraField.objects.get(user=user)
+    if extra.profile_pic :
+        extra.profile_pic.delete()
+    extra.profile_pic = profile_pic
+    extra.dob = dob
+    extra.save()
+    return HttpResponse({'update': 'updated successful.'})

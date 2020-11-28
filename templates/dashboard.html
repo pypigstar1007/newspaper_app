@@ -3,9 +3,21 @@
 
 {% block title %} news {% endblock %}
 {% block body %}
-    <h1>Dashboard</h1>
-
-
-
-
+    <div class="container">
+        <div class="row">
+            
+            {% for news in todays_news %}
+                <div class="card" style="width: 18rem;">
+                    <img class="card-img-top" src="..." alt="Card image cap">
+                    <div class="card-body">
+                    <h5 class="card-title">{{ news.headline }}</h5>
+                    <p>-posted by {{ news.created_by.username }}</p>
+                    <p class="card-text ml-3"><small class="text-muted">Uploaded {{ news.created_at|timesince }} ago</small></p>
+                    <p class="card-text">{{ news.get_body }}</p>
+                    <a href="{% url 'full_news' slug=news.slug id=news.id %}" class="btn btn-primary">Read now</a>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+    </div>
 {% endblock %}

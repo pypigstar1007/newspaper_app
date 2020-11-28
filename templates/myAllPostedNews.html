@@ -1,0 +1,25 @@
+{% extends 'index.html' %}
+{% load static %}
+
+{% block title %} my news {% endblock %}
+{% block body %}
+<div class="row justify-content-around m-2 m-md-4">
+    {% for news in my_news %}
+       
+        <div class="card" style="width: 18rem;">
+            <img class="card-img-top" src="..." alt="Card image cap">
+            <div class="card-body">
+                <h5 class="card-title text-center">{{ news.get_heading }}</h5>
+                <p class="card-text">{{ news.get_body }}</p>
+                
+            </div>
+            <div>
+                <a href="{% url 'full_news' slug=news.slug id=news.id %}" class="btn btn-active btn-primary">Read</a>
+                <a href="{% url 'edit_news' slug=news.slug id=news.id %}" class="btn btn-active btn-primary">Edit</a>
+                <a href="{% url 'delete_news' slug=news.slug id=news.id %}" class="btn btn-active btn-danger">Delete</a>
+            </div>
+          </div>
+    {% endfor %}
+
+</div>
+{% endblock %}

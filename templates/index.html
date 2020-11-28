@@ -12,6 +12,10 @@
   <link rel="stylesheet"
     href="https://unpkg.com/bootstrap-material-design@4.1.1/dist/css/bootstrap-material-design.min.css"
     integrity="sha384-wXznGJNEXNG1NFsbm0ugrLFMQPWswR3lds2VeinahP8N0zJw9VWSopbjv2x7WCvX" crossorigin="anonymous">
+
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons"
+    rel="stylesheet">
+    
   <script src="https://unpkg.com/material-components-web@latest/dist/material-components-web.min.js"></script>
   <title>{% block title %} News {% endblock %}</title>
   {% block style %}{% endblock %}
@@ -33,7 +37,10 @@
               <ul class="navbar-nav text-center col-md-6 ml-auto">
 
                   <li class="nav-item active">
-                      <a class="nav-link" href="#">Add news<span class="sr-only">(current)</span></a>
+                      <a class="nav-link" href="/add-news/">Add news<span class="sr-only">(current)</span></a>
+                  </li>
+                  <li class="nav-item active">
+                      <a class="nav-link" href="/my-all-news/">My all news<span class="sr-only">(current)</span></a>
                   </li>
                   <li class="nav-item dropdown col-md">
                       <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown2" role="button"
@@ -43,14 +50,16 @@
                       <div class="dropdown-menu text-center col-md-12 col-6 mx-auto"
                           aria-labelledby="navbarDropdown2">
                           <a class="dropdown-item " href="#">Update profile</a>
+                          <a class="dropdown-item " href="/my-all-news/">My all news</a>
                           <!-- <a class="dropdown-item " href="#"></a> -->
                           <!-- <a class="dropdown-item " href="#">Maxpain</a> -->
                           <a href="/logout" class="link text-danger">logout</a href="/logout">
+
                       </div>
                   </li>
-                  <li class="nav-item active">
+                  <!-- <li class="nav-item active">
                       <a class="nav-link" href="#contact">Contact us</a>
-                  </li>
+                  </li> -->
 
               </ul>
           </div>
@@ -61,7 +70,7 @@
   <div class="col-md-2 bg-success">
 
   </div>
-  <div class="col-md-10 bg-primary">
+  <div class="col-md-10">
     {% block body %} {% endblock %}
 
   </div>

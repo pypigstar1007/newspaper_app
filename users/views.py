@@ -1,4 +1,5 @@
 from django.shortcuts import render, redirect, reverse, HttpResponse
+from django.http import Http404
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.models import User
 from .forms import *
@@ -19,12 +20,14 @@ def getLogin(request):
             password = request.POST['password'] 
             user = authenticate(request, username = username, password=password)
             if user:
+                print('here i')
                 login(request, user)
-            if request.GET.get('next', None):
-                return HttpResponseRedirect(request.GET['next'])
-            return HttpResponseRedirect(reverse('index'))
-        else:
-            return render(request, 'users/login.html', {'form' : form, 'error':'please give us right password'})
+                if request.GET.get('next', None):
+                    return HttpResponseRedirect(request.GET['next'])
+                return HttpResponseRedirect(reverse('index'))
+            else:
+                print('here')
+                return render(request, 'login.html', {'form' : form, 'error':'please give us right password'})
     form = name_users()
     return render(request, 'login.html', {'form': form})
 
@@ -83,7 +86,8 @@ def myData(request):
         # print(data)
         return HttpResponse(json.dumps(data))
     else: 
-        return redirect('getLogin')
+        raise Http404()
+
 
 @csrf_exempt
 def update_profile(request):
@@ -108,3 +112,12 @@ def update_profile(request):
     extra.dob = dob
     extra.save()
     return HttpResponse({'update': 'updated successful.'})
+
+
+def check_username(request):
+    val = request.GET.get('username')
+    users = User.objects.filter(username=val).count()
+    data = {
+        'total_user': users
+    }
+    return HttpResponse(json.dumps(data))

@@ -41,10 +41,12 @@
           <li class="nav-item active">
             <a class="nav-link" href="/my-all-news/">My all news<span class="sr-only">(current)</span></a>
           </li>
+          {% if request.user.is_authenticated %}
           <li class="nav-item dropdown col-md">
             <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown2" role="button" data-toggle="dropdown"
               aria-haspopup="true" aria-expanded="false">
-              {{request.user}}
+              <img src="#" id="navprofile" class="rounded-circle" width="30" height="30">
+              <span>{{request.user}}</span>
             </a>
             <div class="dropdown-menu text-center col-md-12 col-6 mx-auto" aria-labelledby="navbarDropdown2">
               <a class="dropdown-item " href="#" data-toggle="modal" data-target="#exampleModalCenter">Update
@@ -56,6 +58,14 @@
 
             </div>
           </li>
+          {% else %}
+          <li class="nav-item active">
+            <a class="nav-link" href="/login/">Login<span class="sr-only">(current)</span></a>
+          </li>
+          <li class="nav-item active">
+            <a class="nav-link" href="/signup/">Register<span class="sr-only">(current)</span></a>
+          </li>
+          {% endif %}
           <!-- <li class="nav-item active">
                       <a class="nav-link" href="#contact">Contact us</a>
                   </li> -->
@@ -203,6 +213,8 @@
 $("#profile_pic").change(function() {
   readURLs(this, '#previewImg');
 });
+
+
 $("#image").click(function() {
   
   $("#profile_pic").trigger('click'); 
@@ -216,58 +228,6 @@ $('#remove').click(function(){
   $('#hinnden').val('False')
 })
 
-function formDeserialize(form, data) {
-        const entries = (new URLSearchParams(data)).entries();
-        for (const [key, val] of entries) {
-            const input = form.elements[key];
-            if (input != undefined) {
-                if (input.type == 'file') {
-                    // if (val) {
-                    //     var $file = jQuery('#' + input.id),
-                    //         $label = $file.next('label'),
-                    //         $labelText = $label.find('span'),
-                    //         labelDefault = $labelText.text();
-                    //     var filename = val.split('/').pop()
-                    //     if (filename) {
-                    //         $label
-                    //             .addClass('file-ok')
-                    //             .css('background-image', 'url(' + val + ')');
-                    //         $labelText.text('Click here to change pic');
-                    //     } else {
-                    //         $label.removeClass('file-ok');
-                    //         $labelText.text(labelDefault);
-                    //     }
-                    // }
-                    continue
-
-                } else {
-
-                    switch (input.type) {
-                        case 'checkbox':
-                            input.checked = !!val;
-                            break;
-                        case 'select-one':
-                            if (val)
-                                input.value = val;
-                            else
-                                input.selectedIndex = 0;
-
-                            break;
-                        default:
-                        if(val != 'null' && val != 'None')
-                            {
-                                input.value = val;
-                            }
-                            
-                            break;
-
-                    }
-
-                }
-            }
-
-        }
-    }
 
 function getMyProfileData(){
   $.ajax({
@@ -276,11 +236,12 @@ function getMyProfileData(){
     contentType: 'application/json'
   }).done((res)=>{
     res = JSON.parse(res)
-    console.log(res)
     $('#first_name').val(res['first_name'])
     $('#previewImg').attr('src', res['profile_pic'])
+    $('#navprofile').attr('src', res['profile_pic'])
     if(res['profile_pic'] == ''){
       $('#remove').hide()
+      $('#navprofile').hide()
       $('#hinnden').val('False')
     }
     else{
@@ -316,6 +277,7 @@ $('#profile-form').submit(function(e){
     console.log(err)
   })
 })
+  
   </script>
 </body>
 

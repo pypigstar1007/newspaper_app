@@ -28,6 +28,8 @@ def index(request):
 
 def add_news(request):
     context = {}
+    if (request.user.is_authenticated) == False:
+        return redirect('getLogin')
     if request.method == 'POST':
         headline = request.POST['headline']
         title = request.POST['title']
@@ -56,6 +58,8 @@ def add_news(request):
 
 
 def all_news(request):
+    if (request.user.is_authenticated) == False:
+        return redirect('getLogin')
     news = News.objects.filter(created_by = request.user)
     context = {
         'my_news': news

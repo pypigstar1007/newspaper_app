@@ -2,6 +2,16 @@
 {% load static %}
 
 {% block title %} {{main_news.get_heading}} {% endblock %}
+{% block style %}
+  <style>
+    .counts{
+      font-size: 1.6rem;
+      font-weight: 300;
+    }
+  </style>
+
+
+{% endblock %}
 {% block body %}
 <div class="row mt-5 justify-content-around">
     <div class=" col-10  card mb-3">
@@ -49,19 +59,291 @@
           <p class="card-text"><small class="text-muted">Uploaded {{ main_news.created_at|timesince }} ago</small></p>
           <p class="card-text text-right text-muted">-posted by {{main_news.created_by.username }}</p>
           <button type="button" class="btn btn-active btn-border">
-            <span class="material-icons text-success">
+            <span id="likeButton" class="material-icons text-secondary dolike">
                 thumb_up
             </span>
           </button>
-          <button type="button" class="btn btn-active btn-border">
-            <span class="material-icons text-secondary ">
+          <span class="counts" id="like_count">0</span>
+          <button  type="button" class="btn btn-active btn-sm btn-border ml-2">
+            <span id="dislikeButton" class="material-icons text-secondary ">
                 thumb_down
             </span>
+
           </button>
+          <span class="counts" id="dislike_count">0</span>
         </div>
       </div>
       
 
 </div>
+
+<!-- COMENTS  -->
+<div class="container ml-4">
+  <div class="container ml-md-5">
+    <h1>Comments</h1>
+    
+    <div class="" id="collapseExample">
+      <form id="mainComment">
+        <div class="form-group">
+          <label  for="commentInput">Post a comment</label><br>
+          <input type="text" class="form-control col-10" placeholder="Write your comment" id="commentInput">
+          <button class="btn btn-active btn-primary" type="submit">Send</button>
+        </div>
+      </form>
+    </div>
+
+    <div>
+      <div class="row" id="commentsLists">
+
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block script %} 
+<script>
+
+  let is_like = false;
+  let is_dislike = false;
+  let article_id = "{{ main_news.id }}";
+  let datas ={
+    'articale_id': article_id
+  } 
+
+  // color change button 
+  function do_like(btn, add_class, url, count){
+    $(btn).addClass(add_class)
+    $(btn).removeClass('text-secondary')
+    datas = JSON.stringify(datas);
+    console.log(datas)
+    $.ajax({
+        url: url,
+        method: 'GET',
+        contentType: 'application/json'
+      }).done((response)=>{
+        let counts = JSON.parse(response)
+        $(count).html(counts['total'])
+      }).fail((err)=>{
+        console.log(err)
+        if (err.status == 404){
+          window.location.href = '/login'
+        }
+      })
+  }
+
+
+  function remove_like(btn, add_class, url, count){
+    $(btn).addClass('text-secondary')
+    $(btn).removeClass(add_class)
+    $.ajax({
+        url: url,
+        method: 'GET',
+        contentType: 'application/json'
+      }).done((response)=>{
+        let counts = JSON.parse(response)
+        $(count).html(counts['total'])
+      }).fail((err)=>{
+        console.log(err)
+        if (err.status == 404){
+          window.location.href = '/login'
+        }
+      })
+  }
+  // click on like button color change and ajax call..
+  $('#likeButton').click(function(){
+    if(is_like){
+      let url = '/api/remove-like/?articale_id=' + article_id;
+      remove_like('#likeButton', 'text-primary', url, "#like_count")
+      is_like = false;
+     
+    }
+    else{
+      let url = '/api/add-like/?articale_id=' + article_id;
+      do_like('#likeButton', 'text-primary', url, "#like_count")
+      is_like = true;
+    }
+  })
+  // click on dislike button color change and ajax call..
+
+  $('#dislikeButton').click(function(){
+    if(is_dislike){
+      let url = '/api/remove-dislike/?articale_id=' + article_id;
+      remove_like('#dislikeButton', 'text-danger', url, "#dislike_count")
+      is_dislike = false;
+    }
+    else{
+      let url = '/api/add-dislike/?articale_id=' + article_id;
+      do_like('#dislikeButton', 'text-danger', url, '#dislike_count')
+      is_dislike = true;
+    }
+  })
+
+  $('#mainComment').submit(function(e){
+    e.preventDefault();
+    e.stopImmediatePropagation();
+    let message = $('#commentInput').val();
+    let data = {
+      'message': message,
+      'articale_id': article_id
+    }
+    let username = "{{ request.user.username }}";
+    
+    if(message.length > 0){
+      $.post( "/api/add-comment/", data).done((response)=>{
+        let data = JSON.parse(response)
+        let parent_com = JSON.parse(data['data'])
+        console.log(data['profile_pic'])
+        let lis = `
+          <div class="col-12">
+          <div class="row">
+            <div class="col-2 col-md-1 text-center">
+              <img class="img-fluid w-100  rounded-circle" src="${data['profile_pic']}">
+            </div>
+            <div class="col-10">
+              <p class="">${username}</p>
+              <p>${parent_com[0]['fields']['message']}</p>
+              <button class="btn btn-primary" type="button" data-toggle="collapse" data-target="#collapsecomment${parent_com[0]['pk']}" aria-expanded="false" aria-controls="collapseExample">
+                  Reply
+                </button>
+              <div class="collapse" id="collapsecomment${parent_com[0]['pk']}">
+                <div class="card card-body">
+                    <div class="form-group">
+                      <label  for="commentInput">Post a reply</label><br>
+                      <input type="text" id="mess${parent_com[0]['pk']}" class="form-control col-10" placeholder="Write your comment" id="commentInput">
+                      <button class="btn btn-active btn-primary replySubmit" id="${parent_com[0]['pk']}" onclick="sendReply(id)" type="submit">Send</button>
+                    </div>
+                </div>
+              </div>
+              <div id="replysList${parent_com[0]['pk']}" class="ml-5">
+                  
+              </div>
+            </div>
+          </div>
+          </div>
+          `;
+          let previous = $('#commentsLists').html()
+          $('#commentsLists').html(lis + previous)
+
+      }).fail((err)=>{
+        console.log(err)
+        if (err.status == 404){
+          window.location.href = '/login'
+        }
+      })
+
+    }
+  })
+
+
+  function get_allComment(){
+    $.ajax({
+      url: '/api/all_comment?article_id='+ article_id,
+      method: 'GET',
+      contentType: "application/json"
+    }).done((response)=>{
+      let all_comments = JSON.parse(response)
+      console.log(all_comments['main_comment'][0]['username'])
+      let main_comment = all_comments['main_comment']
+      let child_comment = all_comments['child_comment']
+      console.log(main_comment[0])
+      let total_lis = '';
+      for(var i=0; i < main_comment.length; i++){
+        let parent_comments = main_comment[i];
+        let child_com_li = '';
+        for(var j = 0; j < child_comment.length; j++){
+          let childComm = child_comment[j]
+          if(childComm['parent'] == parent_comments['pk']){
+            // let child_lis = `<li>${childComm['message']}</li>`
+            let child_lis = `
+            <div class="row">
+              <div class="col-1">
+                <img src="${childComm['profile_pic']}" class="img-fluid w-100 rounded-circle" style="object-fit: cover;">
+              </div>
+              <div class="col-11">
+                  <p class="">${childComm['username']}</p>
+                  <p> ${childComm['message']}</p>
+              </div>
+            </div>
+            `;
+            child_com_li += child_lis
+          }
+        }
+          let lis = `
+          <div class="col-12">
+          <div class="row">
+            <div class="col-2 col-md-1 text-center">
+              <img class="img-fluid w-100  rounded-circle" src="${parent_comments['profile_pic']}">
+            </div>
+            <div class="col-10">
+              <p class="">${parent_comments['username']}</p>
+              <p>${parent_comments['message']}</p>
+              <button class="btn btn-primary" type="button" data-toggle="collapse" data-target="#collapsecomment${parent_comments['pk']}" aria-expanded="false" aria-controls="collapseExample">
+                  Reply
+                </button>
+              <div class="collapse" id="collapsecomment${parent_comments['pk']}">
+                <div class="card card-body">
+                    <div class="form-group">
+                      <label  for="commentInput">Post a reply</label><br>
+                      <input type="text" id="mess${parent_comments['pk']}" class="form-control col-10" placeholder="Write your comment" id="commentInput">
+                      <button class="btn btn-active btn-primary replySubmit" id="${parent_comments['pk']}" onclick="sendReply(id)" type="submit">Send</button>
+                    </div>
+                </div>
+              </div>
+              <div id="replysList${parent_comments['pk']}" class="ml-5">
+                  ${child_com_li}
+              </div>
+            </div>
+            </div>
+          </div>
+          `;
+          total_lis += lis;
+
+      }
+      $('#commentsLists').html(total_lis)
+      // console.log(child_comment[0])
+    }).fail((err)=>{
+      console.log(err)
+    })
+  }
+  get_allComment()
+
+
+  function sendReply(id){
+    let messages = $('#mess'+id).val()
+    if (messages.length > 0){
+      let data = {
+        'parent': id,
+        "message": messages,
+        'articale_id': article_id
+      }
+      let username = "{{ request.user.username }}";
+      $.post('/api/add-reply/', data).done((response)=>{
+        let my_reply = JSON.parse(response);
+        my_reply = JSON.parse(my_reply)
+        console.log(my_reply[0])
+        let li = `
+        <div class="row">
+          <div class="col-1">
+            
+          </div>
+          <div class="col-11">
+              <h5 class="h5">${username}</h5>
+              <p> ${my_reply[0]['fields']['message']}</p>
+          </div>
+        </div>
+        `
+        let previous = $('#replysList'+ id).html()
+        $('#replysList'+ id).html(li+previous)
+      }).fail((err)=>{
+        console.log(err)
+      })
+    }
+  }
+
+
+
+</script>
+
 
 {% endblock %}

@@ -93,6 +93,7 @@
                 <div class="ca-profile-info">
                   <div class="ca-profile-pic text-center">
                     <input type="file" class="sr-only" id="profile_pic" name="profile_pic">
+                    <input type="hidden" id="hinnden" name="profilePic">
                     <img id="previewImg" class="img-fluid" src="#" alt="profile pic"
                       style="height: inherit; width: inherit; object-fit: cover;">
                       <span id="image" class="material-icons" style="cursor: pointer;">
@@ -175,9 +176,11 @@
     integrity="sha384-CauSuKpEqAFajSpkdjv3z9t8E7RlpJ1UP0lKM/+NdtSarroVKu069AlsRPKkFBz9"
     crossorigin="anonymous"></script>
   <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.1/jquery.min.js"></script>
-
+  <script src="{% static 'js/toaster.js' %}"></script>
   {% block script %} {% endblock %}
   <script>
+    let profilPic = true;
+
     let hide_id = '#remove';
     let show_id = '#image'
     function readURLs(input, id) {
@@ -210,8 +213,61 @@ $('#remove').click(function(){
   $('#profile_pic').val('');
   $('#previewImg').attr('src', '')
   $('#remove').hide()
+  $('#hinnden').val('False')
 })
 
+function formDeserialize(form, data) {
+        const entries = (new URLSearchParams(data)).entries();
+        for (const [key, val] of entries) {
+            const input = form.elements[key];
+            if (input != undefined) {
+                if (input.type == 'file') {
+                    // if (val) {
+                    //     var $file = jQuery('#' + input.id),
+                    //         $label = $file.next('label'),
+                    //         $labelText = $label.find('span'),
+                    //         labelDefault = $labelText.text();
+                    //     var filename = val.split('/').pop()
+                    //     if (filename) {
+                    //         $label
+                    //             .addClass('file-ok')
+                    //             .css('background-image', 'url(' + val + ')');
+                    //         $labelText.text('Click here to change pic');
+                    //     } else {
+                    //         $label.removeClass('file-ok');
+                    //         $labelText.text(labelDefault);
+                    //     }
+                    // }
+                    continue
+
+                } else {
+
+                    switch (input.type) {
+                        case 'checkbox':
+                            input.checked = !!val;
+                            break;
+                        case 'select-one':
+                            if (val)
+                                input.value = val;
+                            else
+                                input.selectedIndex = 0;
+
+                            break;
+                        default:
+                        if(val != 'null' && val != 'None')
+                            {
+                                input.value = val;
+                            }
+                            
+                            break;
+
+                    }
+
+                }
+            }
+
+        }
+    }
 
 function getMyProfileData(){
   $.ajax({
@@ -225,10 +281,16 @@ function getMyProfileData(){
     $('#previewImg').attr('src', res['profile_pic'])
     if(res['profile_pic'] == ''){
       $('#remove').hide()
+      $('#hinnden').val('False')
+    }
+    else{
+      $('#hinnden').val('True')
     }
     $('#last_name').val(res['last_name'])
     $('#email').val(res['email'])
     $('#dob').val(res['dob'])
+    // let form = document.getElementById('profile-form')
+    // formDeserialize(form, res)
   }).fail((err)=>{
     console.log(err)
   })
@@ -240,7 +302,7 @@ $('#profile-form').submit(function(e){
   e.preventDefault()
   e.stopImmediatePropagation();
 
-  let data  = new FormData(document.getElementById('profile-form'))
+  let data  = new FormData(document.getElementById('profile-form'));
   $.ajax({
     url: '/update/profile/',
     method: 'POST',
@@ -249,6 +311,7 @@ $('#profile-form').submit(function(e){
     processData: false
   }).done((res)=>{
     console.log(res)
+    $.toaster({ message : 'Profile updated', title : 'Success', priority : 'success' });
   }).fail((err)=>{
     console.log(err)
   })

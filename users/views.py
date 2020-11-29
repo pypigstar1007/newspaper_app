@@ -80,15 +80,17 @@ def myData(request):
         }
         if user_data.profile_pic:
             data['profile_pic'] = user_data.profile_pic.url
-        print(data)
+        # print(data)
         return HttpResponse(json.dumps(data))
     else: 
         return redirect('getLogin')
 
 @csrf_exempt
 def update_profile(request):
-    profile_pic = request.FILES.get('profile_pic')
+    print('======================', request.POST)
+    profile_pic = request.FILES.get('profile_pic', None)
     dob = request.POST.get('dob')
+    profilePic = request.POST['profilePic']
     first_name = request.POST.get('first_name')
     last_name = request.POST.get('last_name')
     email = request.POST.get('email')
@@ -98,9 +100,11 @@ def update_profile(request):
     user.last_name = last_name
     user.save()
     extra = userExtraField.objects.get(user=user)
-    if extra.profile_pic :
-        extra.profile_pic.delete()
-    extra.profile_pic = profile_pic
+    print('===============', profile_pic, profilePic)
+    if (profile_pic is not None) or (profilePic == 'False'):
+        if extra.profile_pic :
+            extra.profile_pic.delete()
+        extra.profile_pic = profile_pic
     extra.dob = dob
     extra.save()
     return HttpResponse({'update': 'updated successful.'})

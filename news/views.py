@@ -79,13 +79,20 @@ def favourite_news(request):
         newses.append(likess.for_news)
         ids.append(likess.for_news.id)
     imageses = images.objects.filter(image_for__in = newses)
-    fev_cats = MyFavoriteNews.objects.get(users = request.user)
-    fev_cat_news = News.objects.filter(category__in = fev_cats.fav_categorys.all()).exclude(id__in=ids).order_by('-created_at')
+    try:
+        fev_cats = MyFavoriteNews.objects.get(users = request.user)
+        fev_cat_news = News.objects.filter(category__in = fev_cats.fav_categorys.all()).exclude(id__in=ids).order_by('-created_at')
+        context['fev_cat_news'] = fev_cat_news
+        if fev_cats.fav_categorys.all().count() > 0:
+            context['fev_cat'] = fev_cats.fav_categorys.all()
+    except:
+        pass
     context['newses'] = newses
     context['image'] = imageses
     context['categorys']= Category.objects.all()
-    context['fev_cat_news'] = fev_cat_news
     return render(request, 'favourite_news.html', context)
+
+
 
 
 @login_required(login_url='/login/')
@@ -225,5 +232,20 @@ def add_fev(request):
         my_fev.save()
 
     my_fev.fav_categorys.add(cat)
-    news = News.objects.filter(category=cat).order_by('-created_at')
+    # news = News.objects.filter(category=cat).order_by('-created_at')
+    return HttpResponse('category added.')
+
+
+
+def remove_fev(request):
+    cat_id = request.GET.get('cat_id')
+    cat = Category.objects.get(id=cat_id)
+    try:
+        my_fev = MyFavoriteNews.objects.get(users=request.user)
+    except MyFavoriteNews.DoesNotExist:
+        return HttpResponse('')
+
+    my_fev.fav_categorys.remove(cat)
+    my_fev.save()
+    # news = News.objects.filter(category=cat).order_by('-created_at')
     return HttpResponse('category added.')

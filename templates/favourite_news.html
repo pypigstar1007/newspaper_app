@@ -5,15 +5,30 @@
 {% block body %}
 <div class="row">
 
-    <div class="col-2">
+    <div class="col-3">
+       <p class="h3">select your fevorite categorys</p> 
         {% for category in categorys %}
+
         <div class="custom-control custom-switch">
+            {% if fev_cat %}
+                {% for cat in fev_cat %}
+                    {% if category.id == cat.id %}
+                        <input type="checkbox" checked class="custom-control-input form-control" id="customSwitch{{ category.id }}" value="{{ category.id }}">
+                    {% else %}
+                        <input type="checkbox" class="custom-control-input form-control" id="customSwitch{{ category.id }}" value="{{ category.id }}">
+                    {% endif %}
+                
+                    <label class="custom-control-label" for="customSwitch{{ category.id }}">{{ category.Category_name }}</label>
+                {% endfor %}
+            {% else %}
+
             <input type="checkbox" class="custom-control-input form-control" id="customSwitch{{ category.id }}" value="{{ category.id }}">
             <label class="custom-control-label" for="customSwitch{{ category.id }}">{{ category.Category_name }}</label>
+            {% endif %}
         </div>
         {% endfor %}
     </div>
-    <div class="col-10">
+    <div class="col-9">
         <div class="row justify-content-center m-2 m-md-4">
             {% for news in newses %}
                
@@ -72,6 +87,15 @@
        if($(this).is(':checked')){
             $.ajax({
                url: '/add-to-fev/?cat_id='+$(this).val(),
+               method: 'GET',
+               contentType: 'application/json'
+               }).done((res)=>{
+                   window.location.reload()
+               })
+       }
+       else{
+        $.ajax({
+               url: '/remove-to-fev/?cat_id='+$(this).val(),
                method: 'GET',
                contentType: 'application/json'
                }).done((res)=>{

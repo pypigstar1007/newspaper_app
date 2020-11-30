@@ -10,5 +10,5 @@ urlpatterns = [
     path('read/<slug>-<id>/', views.read_full_news, name="full_news"),
     path('delete/<slug>-<id>/', views.deletes, name="delete_news"),
     path('add-to-fev/', views.add_fev, name="add_fev"),
-    path('delete/<slug>-<id>/', views.deletes, name="delete_news"),
+    path('remove-to-fev/', views.remove_fev, name="remove_fev"),
 ]   

@@ -3,31 +3,87 @@
 
 {% block title %} my news {% endblock %}
 {% block body %}
-<div class="row justify-content-center m-2 m-md-4">
-    {% for news in newses %}
-       
-        <div class="card m-5" style="width: 18rem;">
-            <div class="row">
-                {% for images in image %}
-                {% if images.image_for.id == news.id %}
-                    <div class="col">
-                        <img class="card-img-top w-100 h-100" src="{{ images.imgage.url }}" alt="Card image cap">
-                    </div>
-                    {% endif %}
-                {% endfor %}
-            </div>
-            <div class="card-body">
-                <h5 class="card-title text-center">{{ news.get_heading }}</h5>
-                <p class="card-text">{{ news.get_body }}</p>
-                
-            </div>
-            <div>
-                <a href="{% url 'full_news' slug=news.slug id=news.id %}" class="btn btn-active btn-primary">Read More</a>
-                <!-- <a href="{% url 'edit_news' slug=news.slug id=news.id %}" class="btn btn-active btn-primary">Edit</a>
-                <a href="{% url 'delete_news' slug=news.slug id=news.id %}" class="btn btn-active btn-danger">Delete</a> -->
-            </div>
-          </div>
-    {% endfor %}
+<div class="row">
 
+    <div class="col-2">
+        {% for category in categorys %}
+        <div class="custom-control custom-switch">
+            <input type="checkbox" class="custom-control-input form-control" id="customSwitch{{ category.id }}" value="{{ category.id }}">
+            <label class="custom-control-label" for="customSwitch{{ category.id }}">{{ category.Category_name }}</label>
+        </div>
+        {% endfor %}
+    </div>
+    <div class="col-10">
+        <div class="row justify-content-center m-2 m-md-4">
+            {% for news in newses %}
+               
+                <div class="card m-5" style="width: 18rem;">
+                    <div class="row">
+                        {% for images in image %}
+                        {% if images.image_for.id == news.id %}
+                            <div class="col">
+                                <img class="card-img-top w-100 h-100" src="{{ images.imgage.url }}" alt="Card image cap">
+                            </div>
+                            {% endif %}
+                        {% endfor %}
+                    </div>
+                    <div class="card-body">
+                        <h5 class="card-title text-center">{{ news.get_heading }}</h5>
+                        <p class="card-text">{{ news.get_body }}</p>
+                        
+                    </div>
+                    <div>
+                        <a href="{% url 'full_news' slug=news.slug id=news.id %}" class="btn btn-active btn-primary">Read More</a>
+                    </div>
+                  </div>
+            {% endfor %}
+            {% for news in fev_cat_news %}
+               
+                <div class="card m-5" style="width: 18rem;">
+                    <div class="row">
+                        {% for images in image %}
+                        {% if images.image_for.id == news.id %}
+                            <div class="col">
+                                <img class="card-img-top w-100 h-100" src="{{ images.imgage.url }}" alt="Card image cap">
+                            </div>
+                            {% endif %}
+                        {% endfor %}
+                    </div>
+                    <div class="card-body">
+                        <h5 class="card-title text-center">{{ news.get_heading }}</h5>
+                        <p class="card-text">{{ news.get_body }}</p>
+                        
+                    </div>
+                    <div>
+                        <a href="{% url 'full_news' slug=news.slug id=news.id %}" class="btn btn-active btn-primary">Read More</a>
+                    </div>
+                  </div>
+            {% endfor %}
+        
+        </div>
+    </div>
 </div>
+{% endblock %}
+
+{% block script %}
+
+<script>
+    $('input').change(function(){
+       if($(this).is(':checked')){
+            $.ajax({
+               url: '/add-to-fev/?cat_id='+$(this).val(),
+               method: 'GET',
+               contentType: 'application/json'
+               }).done((res)=>{
+                   window.location.reload()
+               })
+       }
+    })
+
+
+
+</script>
+
+
+
 {% endblock %}

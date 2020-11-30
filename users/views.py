@@ -1,12 +1,15 @@
+import json
 from django.shortcuts import render, redirect, reverse, HttpResponse
 from django.http import Http404
+from django.core.mail import send_mail
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.models import User
-from .forms import *
 from django.http import HttpResponseRedirect
-from .models import userExtraField
-import json
 from django.views.decorators.csrf import csrf_exempt
+from newspaper.settings import EMAIL_HOST_USER
+from .forms import *
+from .models import userExtraField
+
 
 # Create your views here.
 
@@ -47,18 +50,28 @@ def signup(request):
             conf_password = form.cleaned_data['conf_password']
             dob = request.POST['dob']
             if password == conf_password:
-                try:
-                    user = User.objects.create_user(username=user_name, first_name=f_name, last_name = l_name, email=email, password=password)
-                    user.save()
-                    user_data = userExtraField(user = user, dob=dob)
-                    user_data.save()
-                    login(request, user)
-                    return HttpResponseRedirect(reverse('index'))
-                except :
-                    context={}
-                    context['error'] = "Username already exist."
-                    context['form'] = new_user()
-                    return  render(request, 'signup.html', context)
+                # try:
+                user = User.objects.create_user(username=user_name, first_name=f_name, last_name = l_name, email=email, password=password)
+                user.save()
+                user_data = userExtraField(user = user, dob=dob)
+                user_data.save()
+                subject = "email subscribe notification"
+                massage = 'Welcome {0} to our site.'.format(user.first_name)
+                send_mail(
+                subject,
+                massage,
+                EMAIL_HOST_USER,
+                [user.email, ],
+                fail_silently= False,
+                )
+                print('i am here')
+                login(request, user)
+                return HttpResponseRedirect(reverse('index'))
+                # except :
+                #     context={}
+                #     context['error'] = "Username already exist."
+                #     context['form'] = new_user()
+                #     return  render(request, 'signup.html', context)
           
     form = new_user()
     return  render(request, 'signup.html', {'form': form})

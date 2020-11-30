@@ -60,3 +60,8 @@ class News(models.Model):
 class images(models.Model):
     image_for = models.ForeignKey(News, on_delete=models.CASCADE)
     imgage = models.ImageField(upload_to=get_upload_path)
+
+
+class MyFavoriteNews(models.Model):
+    users = models.ForeignKey(User, on_delete=models.CASCADE)
+    fav_categorys = models.ManyToManyField(Category)

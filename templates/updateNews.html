@@ -2,15 +2,43 @@
 {% load static %}
 
 {% block title %} news {% endblock %}
+
+{% block style %} 
+<style>
+    select{
+        padding: 5px;
+    }
+    label{
+        font-weight: 600;
+    }
+    input{
+        margin-left: 1rem;
+    }
+    textarea{
+        margin-left: 1rem;
+    }
+</style>
+
+{% endblock %}
 {% block body %}
-    <h1>Add News</h1>
-    <form method="POST" action="">
+    <h1>Update News</h1>
+    
         {% csrf_token %}
         {{ form.as_table}}
+
         <button type="submit" class="btn btn-active btn-success border">Update</button>
         <a href="{% url 'delete_news' slug=news.slug id=news.id %}" class="btn btn-primary btn-danger border">Delete</a>
     </form>
 
+{% endblock %}
 
+{% block script %}
+<script>
+    $(".image").click(function() {
+
+        $("#"+ $(this).id).trigger('click'); 
+    });
+
+</script>
 
 {% endblock %}

@@ -8,5 +8,7 @@ urlpatterns = [
     path('my-favourite-news/', views.favourite_news, name="my_all_news"),
     path('edit/<slug>-<id>/', views.edit_my_news, name="edit_news"),
     path('read/<slug>-<id>/', views.read_full_news, name="full_news"),
-    path('delete/<slug>-<id>/', views.deletes, name="delete_news")
+    path('delete/<slug>-<id>/', views.deletes, name="delete_news"),
+    path('add-to-fev/', views.add_fev, name="add_fev"),
+    path('delete/<slug>-<id>/', views.deletes, name="delete_news"),
 ]   

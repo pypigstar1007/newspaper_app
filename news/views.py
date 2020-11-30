@@ -1,9 +1,9 @@
-from django.http import Http404
+from django.http import Http404, HttpResponse
 from django.shortcuts import render, redirect
 from django.contrib.auth.decorators import login_required
 from datetime import date, datetime
 
-from .models import News, Category, images
+from .models import News, Category, images, MyFavoriteNews
 from .forms import NewsForms
 from comments.models import likes, dislikes
 
@@ -78,14 +78,19 @@ def favourite_news(request):
     all_likess = likes.objects.filter(like_by= request.user)
     newses = []
     context = {}
+    ids = []
     for likess in all_likess:
         newses.append(likess.for_news)
+        ids.append(likess.for_news.id)
     print(newses)
     imageses = images.objects.filter(image_for__in = newses)
-    print(imageses)
+    fev_cats = MyFavoriteNews.objects.get(users = request.user)
+    fev_cat_news = News.objects.filter(category__in = fev_cats.fav_categorys.all()).exclude(id__in=ids).order_by('-created_at')
+    print(fev_cat_news)
     context['newses'] = newses
     context['image'] = imageses
-
+    context['categorys']= Category.objects.all()
+    context['fev_cat_news'] = fev_cat_news
     return render(request, 'favourite_news.html', context)
 
 
@@ -102,11 +107,13 @@ def edit_my_news(request, slug, id):
         if form.is_valid():
             form.save()
             return redirect('my_all_news')
-
+    
     form = NewsForms(instance=news)
+    iamgess = images.objects.filter(image_for = news)
     context = {
         'form': form,
-        'news': news
+        'news': news,
+        'imagess': iamgess
     }
 
     return render(request, 'updateNews.html', context)
@@ -165,3 +172,15 @@ def deletes(request, slug, id):
     return redirect('my_all_news')
 
     
+def add_fev(request):
+    cat_id = request.GET.get('cat_id')
+    cat = Category.objects.get(id=cat_id)
+    try:
+        my_fev = MyFavoriteNews.objects.get(users=request.user)
+    except MyFavoriteNews.DoesNotExist:
+        my_fev = MyFavoriteNews(users=request.user)
+        my_fev.save()
+
+    my_fev.fav_categorys.add(cat)
+    news = News.objects.filter(category=cat).order_by('-created_at')
+    return HttpResponse('category added.')

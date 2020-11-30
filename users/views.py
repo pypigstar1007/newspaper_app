@@ -99,7 +99,7 @@ def myData(request):
         # print(data)
         return HttpResponse(json.dumps(data))
     else: 
-        raise Http404()
+        return HttpResponse('Unauthorized', status=401)
 
 
 @csrf_exempt

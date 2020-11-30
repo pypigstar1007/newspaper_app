@@ -2,7 +2,6 @@ from django.db import models
 from django.contrib.auth.models import User
 from django.utils.text import slugify
 from datetime import datetime
-from django.utils import timezone
 
 
 def get_upload_path(instance, filename):
@@ -23,7 +22,7 @@ class News(models.Model):
     headline = models.CharField(max_length=50, default='') # this will be use in the front of home page
     news_body = models.TextField()
     created_by = models.ForeignKey(User, on_delete=models.CASCADE)
-    created_at = models.DateTimeField(default=timezone.now())
+    created_at = models.DateTimeField(auto_now_add=True)
     category = models.ForeignKey(Category,null=True, blank=True, on_delete=models.SET_NULL)
     slug = models.SlugField(max_length=255, null=True, blank=True)
     def __str__(self):

@@ -17,14 +17,45 @@
     textarea{
         margin-left: 1rem;
     }
+    .h-100{
+        height: 70%!important;
+    }
 </style>
 
 {% endblock %}
 {% block body %}
     <h1>Update News</h1>
-    
-        {% csrf_token %}
-        {{ form.as_table}}
+    <form method="POST" action="" enctype="multipart/form-data">
+        <div class="row mb-5">
+            <div class="col-4">
+                <input type="file" name="imageInput1">
+                {% if image1 %}
+                <img class="h-100 mt-2 w-100" src="{{ image1.imgage.url }}" id="image1"><br>
+                <input type="hidden" name="imageid1" value="{{ image1.id }}">
+                <input type="checkbox" name="image1check">delete
+                {% endif %}
+            </div>
+            <div class="col-4">
+                <input type="file" name="imageInput2">
+                {% if image2 %}
+                <img class="h-100 w-100 mt-2" src="{{ image2.imgage.url }}" id="image2"><br>
+                <input type="hidden" name="imageid2" value="{{ image2.id }}">
+                <input type="checkbox" name="image2check">delete
+                {% endif %}
+            </div>
+            <div class="col-4">
+                <input type="file" name="imageInput3">
+                {% if image3 %}
+                <img class="h-100 mt-2 w-100" src="{{ image3.imgage.url }}" id="image3"><br>
+                <input type="hidden" name="imageid3" value="{{ image3.id }}">
+                <input type="checkbox" name="image3check">delete
+                {% endif %}
+            </div>
+        </div>
+        <div class="row mt-5">
+            {% csrf_token %}
+            {{ form.as_table}}
+        </div>
 
         <button type="submit" class="btn btn-active btn-success border">Update</button>
         <a href="{% url 'delete_news' slug=news.slug id=news.id %}" class="btn btn-primary btn-danger border">Delete</a>

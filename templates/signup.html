@@ -23,7 +23,7 @@
 
 * { -webkit-box-sizing:border-box; -moz-box-sizing:border-box; -ms-box-sizing:border-box; -o-box-sizing:border-box; box-sizing:border-box; }
 
-html { width: 100%; height:100%; overflow:hidden; }
+html { width: 100%; height:100%;  }
 
 body {
     width: 100%;
@@ -70,23 +70,27 @@ input {
     transition: box-shadow .5s ease;
 }
 input:focus { box-shadow: inset 0 -5px 45px rgba(100,100,100,0.4), 0 1px 1px rgba(255,255,255,0.2); }
-
+    body{
+      overflow-y: auto;
+    }
       </style>
   </head>
   <body>
   <div class="login">
     <h1><i class="fa fa-user-circle" style="font-size:35px"></i>Signup</h1>
     <p class="text-danger text-center">{{ error }}</p>
-    <form method="post" action="">
+    <form  method="post" action="">
       {% csrf_token %}
       <p>{{ form.error }}</p>
       {% for field in form %}
-      <label for='{{ field.auto_id }}' class="text-light">{{ field.label }}:</label>
-      {{ field }}
+        <label  for='{{ field.auto_id }}' class="text-light">{{ field.label }}:</label><br>
+        {{ field }}
       {% endfor %}
-      <label for="dob" class="text-light">DOB:</label>
-      <input type="date" name="dob" class="form-control">
-      <button type="submit" class="btn btn-primary btn-block btn-large">Sign me up</button>
+
+        <label for="dob" class="text-light">DOB:</label>
+        <input type="date" name="dob" class=" form-control">
+        <button type="submit" class="btn btn-primary mx-auto btn-block btn-large">Sign me up</button>
+      </div>
     </form>
 
     <div class="d-flex flex-column">    
@@ -103,6 +107,13 @@ input:focus { box-shadow: inset 0 -5px 45px rgba(100,100,100,0.4), 0 1px 1px rgb
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.1/jquery.min.js"></script>
 
     <script>
+
+      // let inputs = $('input');
+      // for(var i=0; i < inputs.length; i++){
+      //   $(inputs[i]).addClass('col-12 col-md-6')
+      // }
+
+
       $('#id_username').on('input', function(){
         let username = $('#id_username').val()
         if (username.length > 1){
@@ -111,11 +122,9 @@ input:focus { box-shadow: inset 0 -5px 45px rgba(100,100,100,0.4), 0 1px 1px rgb
             method: 'GET',
             contentType: 'application/json'
           }).done((res)=>{
-            console.log(res)
             let count = JSON.parse(res)
             if(count['total_user'] > 0){
               let check_field = document.getElementById('usrenames_check')
-              console.log(check_field)
               if(check_field == undefined){
                 // $('#usrenames_check').hide()
                 $('<small class="text-danger" id="usrenames_check">This username is not available</small><br>').insertAfter('#id_username')

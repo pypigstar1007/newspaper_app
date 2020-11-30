@@ -106,16 +106,68 @@ def edit_my_news(request, slug, id):
         form = NewsForms(request.POST, instance=news)
         if form.is_valid():
             form.save()
-            return redirect('my_all_news')
+            img_id1 = request.POST.get('imageid1', None) 
+            image1 = request.FILES.get('imageInput1', None)
+            check_img1 = request.POST.get('image1check', None)
+            print("data of 1====>>", img_id1, image1, check_img1)
+            if check_img1 is not None:
+                imgs = images.objects.get(id=img_id1)
+                imgs.imgage.delete()
+                imgs.delete()
+            elif (img_id1 is not None) and (check_img1 is None) and (image1 is not None):
+                imgs = images.objects.get(id=img_id1)
+                imgs.imgage.delete()
+                imgs.imgage = image1
+                imgs.save()
+            elif (image1 is not None) and (img_id1 is None) and (check_img1 is None):
+                img = images(image_for=news, imgage = image1)
+                img.save()
+
+            img_id2 = request.POST.get('imageid2', None) 
+            image2 = request.FILES.get('imageInput2', None)
+            check_img2 = request.POST.get('image2check', None)
+            # print("data of 2====>>", img_id2, image2, check_img2)
+            if check_img2 is not None:
+                imgs = images.objects.get(id=img_id2)
+                imgs.imgage.delete()
+                imgs.delete()
+            elif (img_id2 is not None) and (check_img2 is None) and (image2 is not None):
+                imgs = images.objects.get(id=img_id2)
+                imgs.imgage.delete()
+                imgs.imgage = image2
+                imgs.save()
+            elif (image2 is not None) and (img_id2 is None) and (check_img2 is None):
+                img = images(image_for=news, imgage = image2)
+                img.save()
+
+            img_id3 = request.POST.get('imageid3', None) 
+            image3 = request.FILES.get('imageInput3', None)
+            check_img3 = request.POST.get('image3check', None)
+            if check_img3 is not None:
+                imgs = images.objects.get(id=img_id3)
+                imgs.imgage.delete()
+                imgs.delete()
+            elif (img_id3 is not None) and (check_img3 is None) and (image3 is not None):
+                imgs = images.objects.get(id=img_id3)
+                imgs.imgage.delete()
+                imgs.imgage = image3
+                imgs.save()
+            elif (image3 is not None) and (img_id3 is None) and (check_img3 is None):
+                img = images(image_for=news, imgage = image3)
+                img.save()
+            return redirect('/edit/{0}-{1}'.format(news.slug, news.id))
     
     form = NewsForms(instance=news)
     iamgess = images.objects.filter(image_for = news)
+    i =0
     context = {
         'form': form,
         'news': news,
-        'imagess': iamgess
+        # 'imagess': iamgess
     }
-
+    for img in iamgess:
+        context['image{0}'.format(i+1)] = img
+        i += 1
     return render(request, 'updateNews.html', context)
 
 

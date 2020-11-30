@@ -26,7 +26,7 @@ class News(models.Model):
     category = models.ForeignKey(Category,null=True, blank=True, on_delete=models.SET_NULL)
     slug = models.SlugField(max_length=255, null=True, blank=True)
     def __str__(self):
-        return self.title
+        return self.title 
 
     def save(self, *args, **kwargs):
         value = self.title

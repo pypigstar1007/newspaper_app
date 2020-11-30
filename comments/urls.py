@@ -11,7 +11,7 @@ urlpatterns = [
     path('all_comment/', get_comment, name="getAllComment"),
     path('add-reply/', add_reply, name="add_reply"),
     path('edit-reply/', edit_reply, name="edit_reply"),
-    path('delete-reply/<id>', delete_reply, name="delete_reply"),
+    path('delete-reply/<id>/', delete_reply, name="delete_reply"),
 
 
 ]

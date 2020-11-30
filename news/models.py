@@ -37,7 +37,6 @@ class News(models.Model):
     def get_body(self):
         texts = self.news_body
         returned_text = str(texts)[ :100]
-        print(returned_text)
         if len(texts) > 100:
             return returned_text + '...'
         else:

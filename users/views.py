@@ -23,13 +23,11 @@ def getLogin(request):
             password = request.POST['password'] 
             user = authenticate(request, username = username, password=password)
             if user:
-                print('here i')
                 login(request, user)
                 if request.GET.get('next', None):
                     return HttpResponseRedirect(request.GET['next'])
                 return HttpResponseRedirect(reverse('index'))
             else:
-                print('here')
                 return render(request, 'login.html', {'form' : form, 'error':'please give us right password'})
     form = name_users()
     return render(request, 'login.html', {'form': form})
@@ -64,7 +62,6 @@ def signup(request):
                 [user.email, ],
                 fail_silently= False,
                 )
-                print('i am here')
                 login(request, user)
                 return HttpResponseRedirect(reverse('index'))
                 # except :
@@ -96,7 +93,6 @@ def myData(request):
         }
         if user_data.profile_pic:
             data['profile_pic'] = user_data.profile_pic.url
-        # print(data)
         return HttpResponse(json.dumps(data))
     else: 
         return HttpResponse('Unauthorized', status=401)
@@ -104,7 +100,6 @@ def myData(request):
 
 @csrf_exempt
 def update_profile(request):
-    print('======================', request.POST)
     profile_pic = request.FILES.get('profile_pic', None)
     dob = request.POST.get('dob')
     profilePic = request.POST['profilePic']
@@ -117,7 +112,6 @@ def update_profile(request):
     user.last_name = last_name
     user.save()
     extra = userExtraField.objects.get(user=user)
-    print('===============', profile_pic, profilePic)
     if (profile_pic is not None) or (profilePic == 'False'):
         if extra.profile_pic :
             extra.profile_pic.delete()

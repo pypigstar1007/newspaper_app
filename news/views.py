@@ -13,18 +13,14 @@ def index(request):
     all_cat = Category.objects.all()
     todays_news = []
     newss = News.objects.all()
-    for i in newss:
-        print(i.created_at)
     for cat in all_cat:
 
-        news = News.objects.filter(created_at__date = date.today(), category=cat)
-        print(news)
+        news = News.objects.filter(category=cat).order_by('-created_at')
         obj = {
             "category": cat,
             "news": news
         }
         todays_news.append(obj)
-    print(todays_news)
     context['todays_news'] = todays_news
     return render(request, 'dashboard.html', context)
 
@@ -82,11 +78,9 @@ def favourite_news(request):
     for likess in all_likess:
         newses.append(likess.for_news)
         ids.append(likess.for_news.id)
-    print(newses)
     imageses = images.objects.filter(image_for__in = newses)
     fev_cats = MyFavoriteNews.objects.get(users = request.user)
     fev_cat_news = News.objects.filter(category__in = fev_cats.fav_categorys.all()).exclude(id__in=ids).order_by('-created_at')
-    print(fev_cat_news)
     context['newses'] = newses
     context['image'] = imageses
     context['categorys']= Category.objects.all()
@@ -109,7 +103,6 @@ def edit_my_news(request, slug, id):
             img_id1 = request.POST.get('imageid1', None) 
             image1 = request.FILES.get('imageInput1', None)
             check_img1 = request.POST.get('image1check', None)
-            print("data of 1====>>", img_id1, image1, check_img1)
             if check_img1 is not None:
                 imgs = images.objects.get(id=img_id1)
                 imgs.imgage.delete()
@@ -126,7 +119,6 @@ def edit_my_news(request, slug, id):
             img_id2 = request.POST.get('imageid2', None) 
             image2 = request.FILES.get('imageInput2', None)
             check_img2 = request.POST.get('image2check', None)
-            # print("data of 2====>>", img_id2, image2, check_img2)
             if check_img2 is not None:
                 imgs = images.objects.get(id=img_id2)
                 imgs.imgage.delete()
@@ -203,7 +195,6 @@ def read_full_news(request, slug, id):
         }
         image_list.append(obj)
 
-    print(image_list)
     context['main_news'] = get_news
     context['related_newses'] = related_news
     context ['now'] = datetime.now()

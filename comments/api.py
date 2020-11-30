@@ -12,7 +12,6 @@ def add_like(request):
         
         news_id = request.GET.get('articale_id')
         news_is = News.objects.get(id = news_id)
-        print(news_is)
         try:
             like_obj = likes.objects.get(for_news = news_is)
         except likes.DoesNotExist:
@@ -50,7 +49,6 @@ def add_dislike(request):
         
         news_id = request.GET.get('articale_id')
         news_is = News.objects.get(id = news_id)
-        print(news_is)
         try:
             dislike_obj = dislikes.objects.get(for_news = news_is)
         except dislikes.DoesNotExist:
@@ -72,7 +70,6 @@ def remove_dislike(request):
         
         news_id = request.GET.get('articale_id')
         news_is = News.objects.get(id = news_id)
-        print(news_is)
         like_obj = dislikes.objects.get(for_news = news_is)
         like_obj.dislike_by.remove(request.user)
         like_obj.save()

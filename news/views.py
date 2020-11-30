@@ -1,8 +1,11 @@
+from django.http import Http404
 from django.shortcuts import render, redirect
+from django.contrib.auth.decorators import login_required
 from datetime import date, datetime
+
 from .models import News, Category, images
 from .forms import NewsForms
-from django.http import Http404
+from comments.models import likes, dislikes
 
 # Create your views here.
 def index(request):
@@ -61,13 +64,32 @@ def all_news(request):
     if (request.user.is_authenticated) == False:
         return redirect('getLogin')
     news = News.objects.filter(created_by = request.user)
+    imageses = images.objects.filter(image_for__in = news)
     context = {
-        'my_news': news
+        'my_news': news,
+        'image': imageses
     }
 
     return render(request, 'myAllPostedNews.html', context)
 
 
+@login_required(login_url='/login/')
+def favourite_news(request):
+    all_likess = likes.objects.filter(like_by= request.user)
+    newses = []
+    context = {}
+    for likess in all_likess:
+        newses.append(likess.for_news)
+    print(newses)
+    imageses = images.objects.filter(image_for__in = newses)
+    print(imageses)
+    context['newses'] = newses
+    context['image'] = imageses
+
+    return render(request, 'favourite_news.html', context)
+
+
+@login_required(login_url='/login/')
 def edit_my_news(request, slug, id):
     
     try:
@@ -101,6 +123,20 @@ def read_full_news(request, slug, id):
     image_list = []
     imagess = images.objects.filter(image_for = get_news)
     lists = ['First', 'Second', 'Third']
+    context['like'] = 'text-secondary'
+    context['like_count'] = 0
+    context['dislike'] = 'text-secondary'
+    context['dislike_count'] = 0
+    if request.user.is_authenticated:
+        check_for_like = likes.objects.filter(for_news = get_news, like_by = request.user)
+        if(check_for_like.count() > 0):
+            context['like'] = 'text-primary'
+            context['like_count'] = check_for_like.count()
+        
+        check_for_dislike = dislikes.objects.filter(for_news = get_news, dislike_by = request.user)
+        if(check_for_dislike.count() > 0):
+            context['dislike'] = 'text-danger'
+            context['dislike_count'] = check_for_dislike.count()
     for i in range(len(imagess)):
         obj = {
             'pos': lists[i],

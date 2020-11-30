@@ -59,18 +59,18 @@
           <p class="card-text"><small class="text-muted">Uploaded {{ main_news.created_at|timesince }} ago</small></p>
           <p class="card-text text-right text-muted">-posted by {{main_news.created_by.username }}</p>
           <button type="button" class="btn btn-active btn-border">
-            <span id="likeButton" class="material-icons text-secondary dolike">
+            <span id="likeButton" class="material-icons {{like}} dolike">
                 thumb_up
             </span>
           </button>
-          <span class="counts" id="like_count">0</span>
+          <span class="counts" id="like_count">{{ like_count }}</span>
           <button  type="button" class="btn btn-active btn-sm btn-border ml-2">
-            <span id="dislikeButton" class="material-icons text-secondary ">
+            <span id="dislikeButton" class="material-icons {{ dislike }} ">
                 thumb_down
             </span>
 
           </button>
-          <span class="counts" id="dislike_count">0</span>
+          <span class="counts" id="dislike_count">{{ dislike_count }}</span>
         </div>
       </div>
       
@@ -103,9 +103,11 @@
 
 {% block script %} 
 <script>
-
-  let is_like = false;
-  let is_dislike = false;
+  let username = "{{ request.user.username }}"
+  let like_count = '{{ like_count }}';
+  let dislike_count = '{{ dislike_count }}';
+  let is_like = like_count > 0 ? true : false;
+  let is_dislike = dislike_count > 0 ? true : false;
   let article_id = "{{ main_news.id }}";
   let datas ={
     'articale_id': article_id
@@ -116,13 +118,15 @@
     $(btn).addClass(add_class)
     $(btn).removeClass('text-secondary')
     datas = JSON.stringify(datas);
-    console.log(datas)
     $.ajax({
         url: url,
         method: 'GET',
         contentType: 'application/json'
       }).done((response)=>{
+
         let counts = JSON.parse(response)
+        console.log(counts['total'])
+        console.log(is_like)
         $(count).html(counts['total'])
       }).fail((err)=>{
         console.log(err)
@@ -142,6 +146,8 @@
         contentType: 'application/json'
       }).done((response)=>{
         let counts = JSON.parse(response)
+        console.log(is_like)
+        console.log(counts['total'])
         $(count).html(counts['total'])
       }).fail((err)=>{
         console.log(err)
@@ -194,18 +200,32 @@
         let data = JSON.parse(response)
         let parent_com = JSON.parse(data['data'])
         console.log(data['profile_pic'])
+        $('#commentInput').val('');
         let lis = `
-          <div class="col-12">
+          <div id="coms${parent_com[0]['pk']}" class="col-12">
           <div class="row">
             <div class="col-2 col-md-1 text-center">
               <img class="img-fluid w-100  rounded-circle" src="${data['profile_pic']}">
             </div>
             <div class="col-10">
               <p class="">${username}</p>
-              <p>${parent_com[0]['fields']['message']}</p>
+              <p id="commentMessage${parent_com[0]['pk']}">${parent_com[0]['fields']['message']}</p>
               <button class="btn btn-primary" type="button" data-toggle="collapse" data-target="#collapsecomment${parent_com[0]['pk']}" aria-expanded="false" aria-controls="collapseExample">
                   Reply
                 </button>
+                <button class="btn btn-primary" id="edit${parent_com[0]['pk']}"  type="button" data-toggle="collapse" data-target="#collapseedit${parent_com[0]['pk']}" aria-expanded="false" aria-controls="collapseExample">
+                  edit
+              </button>
+              <div class="collapse" id="collapseedit${parent_com[0]['pk']}">
+                <div class="card card-body">
+                    <div class="form-group">
+                      <label id="label${parent_com[0]['pk']}" for="commentInput">edit  reply</label><br>
+                      <input type="text" id="emess${parent_com[0]['pk']}" class="form-control col-10" value="${parent_com[0]['fields']['message']}" placeholder="Write your comment" id="commentInput">
+                      <button class="btn btn-active btn-primary replySubmit" id="edt${parent_com[0]['pk']}" onclick="editReply(id)" type="submit">update</button>
+                    </div>
+                </div>
+              </div>
+              <button onclick="deleteR(${parent_com[0]['pk']})" class="btn btn-primary"> delete</button>
               <div class="collapse" id="collapsecomment${parent_com[0]['pk']}">
                 <div class="card card-body">
                     <div class="form-group">
@@ -243,48 +263,85 @@
       contentType: "application/json"
     }).done((response)=>{
       let all_comments = JSON.parse(response)
-      console.log(all_comments['main_comment'][0]['username'])
       let main_comment = all_comments['main_comment']
       let child_comment = all_comments['child_comment']
-      console.log(main_comment[0])
       let total_lis = '';
       for(var i=0; i < main_comment.length; i++){
         let parent_comments = main_comment[i];
         let child_com_li = '';
         for(var j = 0; j < child_comment.length; j++){
-          let childComm = child_comment[j]
+          let childComm = child_comment[j];
+          let edit_deletes = '';
+        if (parent_comments['username'] == username){
+          edit_deletes = `
+              <button class="btn btn-primary" id="edit${childComm['pk']}"  type="button" data-toggle="collapse" data-target="#collapseedit${childComm['pk']}" aria-expanded="false" aria-controls="collapseExample">
+                  edit
+              </button>
+              <div class="collapse" id="collapseedit${childComm['pk']}">
+                <div class="card card-body">
+                    <div class="form-group">
+                      <label id="label${childComm['pk']}" for="commentInput">edit  reply</label><br>
+                      <input type="text" id="emess${childComm['pk']}" class="form-control col-10" value="${childComm['message']}" placeholder="Write your comment" id="commentInput">
+                      <button class="btn btn-active btn-primary replySubmit" id="edt${childComm['pk']}" onclick="editReply(id)" type="submit">update</button>
+                    </div>
+                </div>
+              </div>
+              <button onclick="deleteR(${childComm['pk']})" class="btn btn-primary"> delete</button>
+          `
+        }
+
           if(childComm['parent'] == parent_comments['pk']){
             // let child_lis = `<li>${childComm['message']}</li>`
             let child_lis = `
-            <div class="row">
+            <div id="coms${childComm['pk']}" class="row">
               <div class="col-1">
                 <img src="${childComm['profile_pic']}" class="img-fluid w-100 rounded-circle" style="object-fit: cover;">
               </div>
               <div class="col-11">
                   <p class="">${childComm['username']}</p>
-                  <p> ${childComm['message']}</p>
+                  <p id="commentMessage${childComm['pk']}"> ${childComm['message']}</p>
+                  ${edit_deletes}
               </div>
             </div>
             `;
             child_com_li += child_lis
           }
         }
+        let edit_delete = '';
+        if (parent_comments['username'] == username){
+          edit_delete = `
+              <button class="btn btn-primary" id="edit${parent_comments['pk']}"  type="button" data-toggle="collapse" data-target="#collapseedit${parent_comments['pk']}" aria-expanded="false" aria-controls="collapseExample">
+                  edit
+              </button>
+              <div class="collapse" id="collapseedit${parent_comments['pk']}">
+                <div class="card card-body">
+                    <div class="form-group">
+                      <label id="label${parent_comments['pk']}" for="commentInput">edit  reply</label><br>
+                      <input type="text" id="emess${parent_comments['pk']}" class="form-control col-10" value="${parent_comments['message']}" placeholder="Write your comment" id="commentInput">
+                      <button class="btn btn-active btn-primary replySubmit" id="edt${parent_comments['pk']}" onclick="editReply(id)" type="submit">update</button>
+                    </div>
+                </div>
+              </div>
+              <button onclick="deleteR(${parent_comments['pk']})" class="btn btn-primary"> delete</button>
+          `
+        }
           let lis = `
-          <div class="col-12">
+          <div id="coms${parent_comments['pk']}" class="col-12 ">
           <div class="row">
             <div class="col-2 col-md-1 text-center">
               <img class="img-fluid w-100  rounded-circle" src="${parent_comments['profile_pic']}">
             </div>
             <div class="col-10">
               <p class="">${parent_comments['username']}</p>
-              <p>${parent_comments['message']}</p>
+              <p id="commentMessage${parent_comments['pk']}">${parent_comments['message']}</p>
               <button class="btn btn-primary" type="button" data-toggle="collapse" data-target="#collapsecomment${parent_comments['pk']}" aria-expanded="false" aria-controls="collapseExample">
-                  Reply
+                Reply
                 </button>
+                ${edit_delete}
               <div class="collapse" id="collapsecomment${parent_comments['pk']}">
                 <div class="card card-body">
                     <div class="form-group">
-                      <label  for="commentInput">Post a reply</label><br>
+                      <label id="label${parent_comments['pk']}" for="commentInput">Post a reply</label><br>
                       <input type="text" id="mess${parent_comments['pk']}" class="form-control col-10" placeholder="Write your comment" id="commentInput">
                       <button class="btn btn-active btn-primary replySubmit" id="${parent_comments['pk']}" onclick="sendReply(id)" type="submit">Send</button>
                     </div>
@@ -323,13 +380,27 @@
         my_reply = JSON.parse(my_reply)
         console.log(my_reply[0])
         let li = `
-        <div class="row">
+        <div id="coms${my_reply[0]['pk']}" class="row">
           <div class="col-1">
             
           </div>
           <div class="col-11">
               <h5 class="h5">${username}</h5>
-              <p> ${my_reply[0]['fields']['message']}</p>
+              <p id="commentMessage${my_reply[0]['pk']}"> ${my_reply[0]['fields']['message']}</p>
+
+              <button class="btn btn-primary" id="edit${my_reply[0]['pk']}"  type="button" data-toggle="collapse" data-target="#collapseedit${my_reply[0]['pk']}" aria-expanded="false" aria-controls="collapseExample">
+                  edit
+              </button>
+              <div class="collapse" id="collapseedit${my_reply[0]['pk']}">
+                <div class="card card-body">
+                    <div class="form-group">
+                      <label id="label${my_reply[0]['pk']}" for="commentInput">edit  reply</label><br>
+                      <input type="text" id="emess${my_reply[0]['pk']}" class="form-control col-10" value="${my_reply[0]['fields']['message']}" placeholder="Write your comment" id="commentInput">
+                      <button class="btn btn-active btn-primary replySubmit" id="edt${my_reply[0]['pk']}" onclick="editReply(id)" type="submit">update</button>
+                    </div>
+                </div>
+              </div>
+              <button onclick="deleteR(${my_reply[0]['pk']})" class="btn btn-primary"> delete</button>
           </div>
         </div>
         `
@@ -342,6 +413,41 @@
   }
 
 
+  function editReply(id){
+    let comment_id = id.slice(3)
+    let updatedMessage = $('#emess' + comment_id).val()
+    let data = {
+      'comment_id' : comment_id,
+      'message': updatedMessage
+    }
+    $.post('/api/edit-reply/', data).done((response)=>{
+      let data = JSON.parse(JSON.parse(response))
+      console.log(data[0])
+      $('#collapseedit'+ comment_id).removeClass('show')
+      $('#edit'+ comment_id).addClass('collapsed')
+      $('#commentMessage'+comment_id).html(data[0]['fields']['message'])
+    }).fail((err)=>{
+      console.log(err)
+    })
+  }
+  
+  
+  function deleteR(id){
+    $.post(`/api/delete-reply/${id}`).done((res)=>{
+      console.log(res)
+      if(res == 'done'){
+        $('#coms'+id).remove()
+      }
+    }).fail((err)=>{
+      console.log(err)
+      if(err.status == 401){
+        let url = window.location.href
+        url = url.split('/').slice(3).join('/')
+
+        window.location.href = '/login/?next=/'+url
+      }
+    })
+  }
 
 </script>
 

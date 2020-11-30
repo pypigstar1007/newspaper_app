@@ -4,7 +4,7 @@
 {% block title %} my news {% endblock %}
 {% block body %}
 <div class="row justify-content-center m-2 m-md-4">
-    {% for news in my_news %}
+    {% for news in newses %}
        
         <div class="card m-5" style="width: 18rem;">
             <div class="row">
@@ -22,9 +22,9 @@
                 
             </div>
             <div>
-                <a href="{% url 'full_news' slug=news.slug id=news.id %}" class="btn btn-active btn-primary">Read</a>
-                <a href="{% url 'edit_news' slug=news.slug id=news.id %}" class="btn btn-active btn-primary">Edit</a>
-                <a href="{% url 'delete_news' slug=news.slug id=news.id %}" class="btn btn-active btn-danger">Delete</a>
+                <a href="{% url 'full_news' slug=news.slug id=news.id %}" class="btn btn-active btn-primary">Read More</a>
+                <!-- <a href="{% url 'edit_news' slug=news.slug id=news.id %}" class="btn btn-active btn-primary">Edit</a>
+                <a href="{% url 'delete_news' slug=news.slug id=news.id %}" class="btn btn-active btn-danger">Delete</a> -->
             </div>
           </div>
     {% endfor %}

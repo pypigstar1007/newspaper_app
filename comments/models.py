@@ -13,9 +13,9 @@ class comment(models.Model):
 
 class likes(models.Model):
     for_news = models.ForeignKey(News, on_delete=models.CASCADE)
-    like_by = models.ManyToManyField(User)
+    like_by = models.ManyToManyField(User, related_name='like_user')
 
 
 class dislikes(models.Model):
     for_news = models.ForeignKey(News, on_delete=models.CASCADE)
-    dislike_by = models.ManyToManyField(User)
+    dislike_by = models.ManyToManyField(User, related_name='dislike_user')

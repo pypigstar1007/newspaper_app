@@ -1,0 +1,4 @@
+edit page image need to show, 
+update page design
+favorite news
+like, dislike disappear on page refresh

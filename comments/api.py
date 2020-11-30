@@ -162,3 +162,27 @@ def add_reply(request):
             return HttpResponse(json.dumps(data))
         
     raise Http404()
+
+
+@csrf_exempt
+def edit_reply(request):
+    if request.method == 'POST':
+        comments = commentTable.objects.get(id = request.POST['comment_id'])
+        messages = request.POST['message']
+        comments.message = messages
+        comments.save()
+        data = serializers.serialize('json', [comments, ])
+        return HttpResponse(json.dumps(data))
+
+
+@csrf_exempt
+def delete_reply(request, id):
+    if request.user.is_authenticated:
+        try:
+            comments = commentTable.objects.get(id = id)
+            comments.delete()
+            return HttpResponse('done')
+        except commentTable.DoesNotExist:
+            raise Http404
+    else:
+        return HttpResponse('Unauthorized', status=401)
